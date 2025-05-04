@@ -7,9 +7,11 @@ function MainContent() {
   const [loading, setLoading] = useState(true) // Estado de carga
   const [error, setError] = useState(null) // Estado de error
 
+  const API_BASE_URL = 'http://localhost:3000' // URL base de la API
+
   // Obtener categorías al montar el componente
   useEffect(() => {
-    fetch('http://localhost:3000/api/categorias')
+    fetch(`${API_BASE_URL}/api/categorias`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Error al obtener las categorías')
@@ -32,7 +34,7 @@ function MainContent() {
     if (selectedCategory) {
       setLoading(true)
       setError(null) // Reinicia el estado de error antes de la nueva solicitud
-      fetch(`http://localhost:3000/api/platillos/categoria/${selectedCategory}`)
+      fetch(`${API_BASE_URL}/api/platillos/categoria/${selectedCategory}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error('Error al obtener los platillos')
@@ -90,7 +92,7 @@ function MainContent() {
           dishes.map((dish) => (
             <div key={dish.id} className="bg-gray-800 p-4 rounded">
               <img
-                src={dish.imagen} // Asegúrate de que tu API devuelva una URL de imagen
+                src={`${API_BASE_URL}${dish.imagen_url}`} // Construye la URL completa de la imagen
                 alt={dish.nombre}
                 className="rounded mb-4"
               />

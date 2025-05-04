@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+  --color-rojoBrillante: #FF0000;
+  --color-azulCarbon: #252836;
+  --color-grisAcero: #393C49;
+}
