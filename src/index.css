@@ -2,6 +2,30 @@
 
 @theme {
   --color-rojoBrillante: #FF0000;
-  --color-azulCarbon: #252836;
-  --color-grisAcero: #393C49;
+  --color-azulCarbon: #1f1d2b;
+  --color-grisAcero: #252836;
+}
+
+@layer utilities {
+  .scrollbar {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #9CA3AF transparent; /* thumb | track */
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #9CA3AF; /* Gris claro */
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #f87171; /* Rojo claro al hacer hover (opcional) */
+    }
+  }
 }

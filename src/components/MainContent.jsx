@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import DishCard from './DishCard' // Importa el componente DishCard
 
-function MainContent() {
+function MainContent({ onAddToOrder }) {
   const [categories, setCategories] = useState([]) // Categorías
   const [selectedCategory, setSelectedCategory] = useState(null) // Categoría seleccionada
   const [dishes, setDishes] = useState([]) // Platillos de la categoría seleccionada
@@ -42,12 +43,7 @@ function MainContent() {
           return response.json()
         })
         .then((data) => {
-          if (data.mensaje) {
-            // Si la API devuelve un mensaje, tratamos como si no hubiera platillos
-            setDishes([])
-          } else {
-            setDishes(data)
-          }
+          setDishes(data.mensaje ? [] : data)
           setLoading(false)
         })
         .catch((err) => {
@@ -73,7 +69,7 @@ function MainContent() {
               key={category.id}
               className={`pb-2 cursor-pointer ${
                 selectedCategory === category.id
-                  ? 'text-red-500 font-bold border-b-2 border-red-500'
+                  ? 'text-rojoBrillante font-bold border-b-2 border-rojoBrillante'
                   : 'text-gray-400 hover:text-white'
               }`}
               onClick={() => setSelectedCategory(category.id)} // Cambia la categoría seleccionada
@@ -85,20 +81,17 @@ function MainContent() {
       </nav>
 
       {/* Dishes Grid */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 overflow-y-auto max-h-[400px] gap-y-7 scrollbar rounded-lg p-8">
         {loading ? (
           <p className="text-white col-span-3 text-center">Cargando...</p>
         ) : dishes.length > 0 ? (
           dishes.map((dish) => (
-            <div key={dish.id} className="bg-gray-800 p-4 rounded">
-              <img
-                src={`${API_BASE_URL}${dish.imagen_url}`} // Construye la URL completa de la imagen
-                alt={dish.nombre}
-                className="rounded mb-4"
-              />
-              <h3 className="text-lg font-bold">{dish.nombre}</h3>
-              <p className="text-gray-400">${dish.precio}</p>
-            </div>
+            <DishCard
+              key={dish.id}
+              dish={dish}
+              apiBaseUrl={API_BASE_URL}
+              onAddToOrder={onAddToOrder}
+            />
           ))
         ) : (
           <p className="text-gray-400 col-span-3 text-center">

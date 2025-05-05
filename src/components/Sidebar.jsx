@@ -1,6 +1,6 @@
 function Sidebar() {
   return (
-    <aside className="w-[104px] bg-gray-800 flex flex-col items-center py-4">
+    <aside className="w-[104px] bg-azulCarbon flex flex-col items-center py-4">
       {/* Logo */}
       <div className="mb-8">
         <img
@@ -12,7 +12,7 @@ function Sidebar() {
 
       {/* Navigation Icons */}
       <nav className="flex flex-col items-center space-y-8">
-        <button className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+        <button className="w-12 h-12 bg-rojoBrillante rounded-lg flex items-center justify-center">
           <img
             src="/path-to-home-icon.png" // Reemplaza con la ruta de tu ícono de inicio
             alt="Home"
