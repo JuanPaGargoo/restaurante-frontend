@@ -7,6 +7,13 @@ function App() {
   const [orderItems, setOrderItems] = useState([]);
 
   const handleAddToOrder = (dish) => {
+    console.log("Platillo recibido:", dish); // Log para depuración
+
+    if (!dish.precio || typeof dish.precio !== "number") {
+      console.error(`El precio del platillo con id ${dish.id} no está definido o no es válido.`);
+      return; // Evita agregar el platillo si no tiene un precio válido
+    }
+
     setOrderItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === dish.id);
       if (existingItem) {
@@ -14,7 +21,10 @@ function App() {
           item.id === dish.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prevItems, { ...dish, quantity: 1 }];
+      return [
+        ...prevItems,
+        { ...dish, quantity: 1 }, // dish.precio ya está validado
+      ];
     });
   };
 

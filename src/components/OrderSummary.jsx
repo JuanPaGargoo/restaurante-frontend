@@ -3,6 +3,21 @@ import { useState } from "react";
 function OrderSummary({ orderItems, onRemoveItem, onUpdateQuantity }) {
   const apiBaseUrl = "http://localhost:3000"; // Cambia esto por tu base URL
 
+  const handleAddToOrder = (dish) => {
+    setOrderItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.id === dish.id);
+      if (existingItem) {
+        return prevItems.map((item) =>
+          item.id === dish.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [
+        ...prevItems,
+        { ...dish, quantity: 1, precio: dish.precio || 0 }, // Asegúrate de que dish.precio esté definido
+      ];
+    });
+  };
+
   return (
     <aside className="w-[409px] bg-azulCarbon p-4">
       <h2 className="text-xl font-bold mb-4">Orders</h2>
@@ -12,7 +27,7 @@ function OrderSummary({ orderItems, onRemoveItem, onUpdateQuantity }) {
           orderItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-center bg-gray-800 p-4 rounded-lg"
+              className="flex items-center bg-grisAcero p-4 rounded-lg"
             >
               {/* Imagen */}
               <img
@@ -24,7 +39,7 @@ function OrderSummary({ orderItems, onRemoveItem, onUpdateQuantity }) {
               <div className="flex-1">
                 <h3 className="font-bold text-white">{item.nombre}</h3>
                 <p className="text-gray-400">
-                  ${typeof item.precio === "number" ? item.precio.toFixed(2) : "0.00"}
+                  ${typeof item.precio === "number" && !isNaN(item.precio) ? item.precio.toFixed(2) : "N/A"}
                 </p>
                 {/* Controles de cantidad */}
                 <div className="flex items-center mt-2">

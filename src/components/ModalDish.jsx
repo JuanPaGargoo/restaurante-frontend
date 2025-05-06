@@ -12,29 +12,46 @@ function ModalDish({ isOpen, onClose, dish, apiBaseUrl, onAddToOrder }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={onClose} // Cierra el modal al hacer clic fuera
     >
       <div
-        className="bg-grisAcero rounded-lg p-6 w-[90%] max-w-md"
+        className="bg-grisAcero rounded-lg shadow-lg p-6 w-[90%] max-w-lg relative"
         onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal cierre el modal
       >
-        <h2 className="text-xl font-bold mb-4">{dish.nombre}</h2>
+        {/* Botón de cierre */}
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
+          onClick={onClose}
+        >
+          ✕
+        </button>
+
+        {/* Título */}
+        <h2 className="text-2xl font-bold text-white mb-4 text-center">{dish.nombre}</h2>
+
+        {/* Imagen */}
         <img
           src={`${apiBaseUrl}${dish.imagen_url}`}
           alt={dish.nombre}
-          className="w-full h-48 object-cover rounded-lg mb-4"
+          className="w-full h-56 object-cover rounded-lg mb-4 shadow-md"
         />
-        <p className="text-gray-700 mb-6">{dish.descripcion || 'Descripción no disponible.'}</p>
+
+        {/* Descripción */}
+        <p className="text-gray-300 text-center mb-6">
+          {dish.descripcion || 'Descripción no disponible.'}
+        </p>
+
+        {/* Botones */}
         <div className="flex justify-between">
           <button
-            className="bg-azulCarbon text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            className="bg-gray-700 text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-600 transition-all"
             onClick={onClose}
           >
             Atrás
           </button>
           <button
-            className="bg-rojoBrillante text-white px-4 py-2 rounded hover:bg-red-600"
+            className="bg-rojoBrillante text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-all"
             onClick={handleAdd}
           >
             Agregar
