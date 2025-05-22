@@ -1,6 +1,11 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
-import OrderSummary from './components/OrderSummary';
+import SettingsContent from './components/SettingsContent';
+import AlertContent from './components/AlertContent';
+import ViewKitchen from './components/ViewKitchen';
+// import MenuContent from './components/MenuContent'; // Ya no lo necesitas aquí
+// import OrderSummary from './components/OrderSummary'; // Ya no lo necesitas aquí
 import { useState } from 'react';
 
 function App() {
@@ -41,15 +46,27 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-grisAcero text-white">
-      <Sidebar />
-      <MainContent onAddToOrder={handleAddToOrder} />
-      <OrderSummary
-        orderItems={orderItems}
-        onRemoveItem={handleRemoveItem}
-        onUpdateQuantity={handleUpdateQuantity}
-      />
-    </div>
+    <BrowserRouter>
+      <div className="flex h-screen bg-grisAcero text-white">
+        <Sidebar />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <MainContent
+                onAddToOrder={handleAddToOrder}
+                orderItems={orderItems}
+                onRemoveItem={handleRemoveItem}
+                onUpdateQuantity={handleUpdateQuantity}
+              />
+            }
+          />
+          <Route path="/configuracion" element={<SettingsContent />} />
+          <Route path="/alertas" element={<AlertContent />} />
+          <Route path="/cocina" element={<ViewKitchen />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
