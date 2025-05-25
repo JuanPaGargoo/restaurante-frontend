@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import DishCard from './DishCard';
-function MenuContent({ onAddToOrder }) {
+function MenuContent({ onAddToOrder, disabled }) {
   const [categories, setCategories] = useState([]); // Categorías
   const [selectedCategory, setSelectedCategory] = useState(null); // Categoría seleccionada
   const [dishes, setDishes] = useState([]); // Platillos de la categoría seleccionada
@@ -105,6 +105,7 @@ function MenuContent({ onAddToOrder }) {
               dish={dish}
               apiBaseUrl={API_BASE_URL}
               onAddToOrder={onAddToOrder}
+              disabled={disabled}
             />
           ))
         ) : (

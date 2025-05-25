@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ModalDish from './ModalDish';
 
-function DishCard({ dish, apiBaseUrl, onAddToOrder }) {
+function DishCard({ dish, apiBaseUrl, onAddToOrder, disabled }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -16,7 +16,7 @@ function DishCard({ dish, apiBaseUrl, onAddToOrder }) {
     <>
       {/* Tarjeta */}
       <div
-        className="bg-azulCarbon rounded-2xl flex flex-col items-center h-[230px] w-[190px] relative transform transition-transform duration-300 hover:scale-105 cursor-pointer"
+        className={`bg-azulCarbon rounded-2xl flex flex-col items-center h-[230px] w-[190px] relative transform transition-transform duration-300 hover:scale-105 cursor-pointer ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <div className="h-[200px] w-[190px] rounded-2xl overflow-hidden">
           <img
@@ -30,7 +30,7 @@ function DishCard({ dish, apiBaseUrl, onAddToOrder }) {
           <p className="text-md text-gray-400 text-center truncate">${dish.precio}</p>
           <button
             className="mt-2 w-full bg-red-900/80 hover:bg-red-700 text-red-200 font-semibold py-2 rounded-lg transition"
-            onClick={handleOpenModal}
+            onClick={disabled ? undefined : handleOpenModal}
           >
             Añadir
           </button>
