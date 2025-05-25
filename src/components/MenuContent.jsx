@@ -76,7 +76,7 @@ function MenuContent({ onAddToOrder }) {
       </header>
 
       {/* Categories Navigation */}
-      <nav className="mb-6">
+      <nav className="mb-2">
         <ul className="flex space-x-8 border-b border-gray-700">
           {categories.map((category) => (
             <li

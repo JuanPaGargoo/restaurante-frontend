@@ -5,9 +5,10 @@ export const UserTypeContext = createContext();
 export function UserTypeProvider({ children }) {
   // Estados posibles: "cliente", "personal", "cocina"
   const [userType, setUserType] = useState("personal");
+  const [numeroMesa, setNumeroMesa] = useState("0"); // Nuevo estado
 
   return (
-    <UserTypeContext.Provider value={{ userType, setUserType }}>
+    <UserTypeContext.Provider value={{ userType, setUserType, numeroMesa, setNumeroMesa }}>
       {children}
     </UserTypeContext.Provider>
   );
