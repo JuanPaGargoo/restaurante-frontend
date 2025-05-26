@@ -1,7 +1,21 @@
+import { useCuenta } from "../context/CuentaContext";
 import { useState } from "react";
 import ConfirmOrder from "./ConfirmOrder";
 
+function agrupaPlatillos(platillos) {
+  const agrupados = {};
+  platillos.forEach((item) => {
+    if (agrupados[item.id]) {
+      agrupados[item.id].quantity += item.quantity;
+    } else {
+      agrupados[item.id] = { ...item };
+    }
+  });
+  return Object.values(agrupados);
+}
+
 function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
+  const { confirmedOrders } = useCuenta();
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cardData, setCardData] = useState({
     name: "",
@@ -10,27 +24,40 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
     cvv: "",
   });
 
+  // Aplana y agrupa todos los platillos de todos los pedidos confirmados
+  const allItems = agrupaPlatillos(confirmedOrders.flat());
+
   return (
     <aside className="fixed inset-0 bg-black/75 flex justify-end z-50">
       <div className="w-[800px] h-full bg-azulCarbon flex overflow-y-scroll scrollbar">
         {/* Resumen de la orden */}
         <div className="w-[409px] border-r border-[#35354a]">
-          <ConfirmOrder orderItems={orderItems} onBack={onBack} hidePayButton />
+          <ConfirmOrder orderItems={allItems} onBack={onBack} hidePayButton />
         </div>
         {/* Sección de pago */}
         <div className="flex-1 flex flex-col p-4 border-l border-[#35354a]">
           <h2 className="text-white  font-bold mb-2 ">Pago</h2>
           <div className="border-y border-[#35354a]">
-            <span className="text-white font-semibold mb-2 block pt-4">Método de Pago</span>
+            <span className="text-white font-semibold mb-2 block pt-4">
+              Método de Pago
+            </span>
             <div className="flex gap-4 mb-6">
               <button
-                className={`flex-1 py-3 rounded border ${paymentMethod === "card" ? "border-rojoBrillante bg-[#23232f]" : "border-gray-600 bg-transparent"} text-white font-semibold`}
+                className={`flex-1 py-3 rounded border ${
+                  paymentMethod === "card"
+                    ? "border-rojoBrillante bg-[#23232f]"
+                    : "border-gray-600 bg-transparent"
+                } text-white font-semibold`}
                 onClick={() => setPaymentMethod("card")}
               >
                 Tarjeta
               </button>
               <button
-                className={`flex-1 py-3 rounded border ${paymentMethod === "cash" ? "border-rojoBrillante bg-[#23232f]" : "border-gray-600 bg-transparent"} text-white font-semibold`}
+                className={`flex-1 py-3 rounded border ${
+                  paymentMethod === "cash"
+                    ? "border-rojoBrillante bg-[#23232f]"
+                    : "border-gray-600 bg-transparent"
+                } text-white font-semibold`}
                 onClick={() => setPaymentMethod("cash")}
               >
                 Efectivo
@@ -40,34 +67,46 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
             {paymentMethod === "card" && (
               <form className="space-y-4 mb-8">
                 <div>
-                  <label className="block text-gray-400 text-sm mb-1">Nombre del titular</label>
+                  <label className="block text-gray-400 text-sm mb-1">
+                    Nombre del titular
+                  </label>
                   <input
                     type="text"
                     className="w-full bg-[#23232f] text-white rounded px-4 py-2 outline-none text-sm"
                     placeholder="Ej: Juan Pérez"
                     value={cardData.name}
-                    onChange={e => setCardData({ ...cardData, name: e.target.value })}
+                    onChange={(e) =>
+                      setCardData({ ...cardData, name: e.target.value })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-400 text-sm mb-1">Numero de tarjeta</label>
+                  <label className="block text-gray-400 text-sm mb-1">
+                    Numero de tarjeta
+                  </label>
                   <input
                     type="text"
                     className="w-full bg-[#23232f] text-white rounded px-4 py-2 outline-none text-sm"
                     placeholder="Ej: 2564 1421 0897 1244"
                     value={cardData.number}
-                    onChange={e => setCardData({ ...cardData, number: e.target.value })}
+                    onChange={(e) =>
+                      setCardData({ ...cardData, number: e.target.value })
+                    }
                   />
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-gray-400 text-sm mb-1">Fecha de expiración</label>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Fecha de expiración
+                    </label>
                     <input
                       type="text"
                       className="w-full bg-[#23232f] text-white rounded px-4 py-2 outline-none text-sm"
                       placeholder="Ej: 12/25"
                       value={cardData.expiry}
-                      onChange={e => setCardData({ ...cardData, expiry: e.target.value })}
+                      onChange={(e) =>
+                        setCardData({ ...cardData, expiry: e.target.value })
+                      }
                     />
                   </div>
                   <div className="flex-1">
@@ -77,7 +116,9 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
                       className="w-full bg-[#23232f] text-white rounded px-4 py-2 outline-none text-sm"
                       placeholder="•••"
                       value={cardData.cvv}
-                      onChange={e => setCardData({ ...cardData, cvv: e.target.value })}
+                      onChange={(e) =>
+                        setCardData({ ...cardData, cvv: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -89,6 +130,12 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
                   Pedir Terminal
                 </button>
               </form>
+            )}
+            {paymentMethod === "cash" && (
+              <p className="text-gray-400 mb-4">
+                Porfavor ten listo el dinero. Cuando confirmes, llegara un mesero
+                para recibir el pago
+              </p>
             )}
           </div>
           <div className="flex gap-4 my-10">
@@ -102,7 +149,7 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
               className="flex-1 bg-rojoBrillante text-white py-3 rounded hover:bg-red-900/20 transition-colors font-bold"
               onClick={() => onConfirmPayment(paymentMethod)}
             >
-              Confirm Payment
+              Confirmar Pago
             </button>
           </div>
         </div>
