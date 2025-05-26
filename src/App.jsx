@@ -12,7 +12,6 @@ function App() {
   const [orderItems, setOrderItems] = useState([]);
 
   const handleAddToOrder = (dish) => {
-    console.log("Platillo recibido:", dish); // Log para depuración
 
     if (!dish.precio || typeof dish.precio !== "number") {
       console.error(`El precio del platillo con id ${dish.id} no está definido o no es válido.`);

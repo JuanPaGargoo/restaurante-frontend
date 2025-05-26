@@ -8,11 +8,12 @@ import PayOrder from './PayOrder';
 function MainContent({ onAddToOrder, orderItems, onRemoveItem, onUpdateQuantity,onClearOrder }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPay, setShowPay] = useState(false);
-  const { addConfirmedOrder, confirmedOrders, clearConfirmedOrders } = useCuenta();
+  const { addConfirmedOrder, confirmedOrders, clearConfirmedOrders, confirmarPago } = useCuenta();
 
   const handleConfirmOrder = () => {
     addConfirmedOrder(orderItems); 
     setShowConfirm(true);
+    
   };
 
   return (
@@ -42,6 +43,11 @@ function MainContent({ onAddToOrder, orderItems, onRemoveItem, onUpdateQuantity,
           onBack={() => { setShowPay(false); setShowConfirm(true);  onClearOrder();}}
           onCancel={() => { setShowPay(false); setShowConfirm(false); onClearOrder(); }}
           onConfirmPayment={(method) => {
+            const total = confirmedOrders
+              .flat()
+              .reduce((acc, item) => acc + item.precio * item.quantity, 0);
+
+            confirmarPago(Number(total), method); // <-- Asegura que sea double
             alert(`Pago confirmado con: ${method === "card" ? "Tarjeta" : "Efectivo"}`);
             clearConfirmedOrders();
             setShowPay(false);

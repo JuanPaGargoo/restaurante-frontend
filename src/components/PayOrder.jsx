@@ -1,4 +1,5 @@
 import { useCuenta } from "../context/CuentaContext";
+import { useUserType } from "../context/UserTypeContext"; // Importa el hook
 import { useState } from "react";
 import ConfirmOrder from "./ConfirmOrder";
 
@@ -15,7 +16,8 @@ function agrupaPlatillos(platillos) {
 }
 
 function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
-  const { confirmedOrders } = useCuenta();
+  const { confirmedOrders, clearConfirmedOrders, cuentaId } = useCuenta();
+  const { numeroMesa } = useUserType(); // Obtén el número de mesa del contexto
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cardData, setCardData] = useState({
     name: "",
@@ -26,6 +28,48 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
 
   // Aplana y agrupa todos los platillos de todos los pedidos confirmados
   const allItems = agrupaPlatillos(confirmedOrders.flat());
+
+  // Calcula el total
+  const total = allItems.reduce(
+    (acc, item) => acc + item.precio * item.quantity,
+    0
+  );
+
+  // Función para manejar el pago
+  const handleConfirmPayment = async () => {
+    if (!cuentaId) {
+      alert("No hay cuenta activa para pagar.");
+      return;
+    }
+    try {
+      // Payload para el pago
+      const pagoPayload = {
+        monto: total,
+        metodo: paymentMethod,
+        fecha: new Date().toISOString(),
+      };
+
+      // Actualiza la cuenta agregando el pago
+      const res = await fetch(
+        `http://localhost:3000/api/cuentas/${cuentaId}/pago`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(pagoPayload),
+        }
+      );
+
+      if (!res.ok) throw new Error("Error al registrar el pago");
+
+      // Limpia la cuenta y pedidos para iniciar una nueva cuenta
+      clearConfirmedOrders();
+
+      // Puedes mostrar feedback o cerrar el modal
+      onConfirmPayment(paymentMethod);
+    } catch (err) {
+      alert("Hubo un error al registrar el pago");
+    }
+  };
 
   return (
     <aside className="fixed inset-0 bg-black/75 flex justify-end z-50">
@@ -147,7 +191,7 @@ function PayOrder({ orderItems, onBack, onCancel, onConfirmPayment }) {
             </button>
             <button
               className="flex-1 bg-rojoBrillante text-white py-3 rounded hover:bg-red-900/20 transition-colors font-bold"
-              onClick={() => onConfirmPayment(paymentMethod)}
+              onClick={handleConfirmPayment}
             >
               Confirmar Pago
             </button>

@@ -47,7 +47,6 @@ function MenuContent({ onAddToOrder, disabled }) {
             ...dish,
             precio: parseFloat(dish.precio) || 0, // Convierte a número o asigna 0 si no es válido
           }));
-          console.log('Platillos procesados:', dishesWithDefaultPrice); // Log para depuración
           setDishes(data.mensaje ? [] : dishesWithDefaultPrice);
           setLoading(false);
         })
