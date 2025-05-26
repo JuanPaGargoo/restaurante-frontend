@@ -118,16 +118,16 @@ function Sidebar() {
 
       {/* Modal de contraseña */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 shadow-lg w-80 flex flex-col items-center">
-            <h2 className="text-lg font-bold mb-4 text-gray-800">Configuración</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-azulCarbon rounded-lg p-8 shadow-lg w-80 flex flex-col items-center">
+            <h2 className="text-lg font-bold mb-4 text-white">Configuración</h2>
             <form onSubmit={handlePasswordSubmit} className="w-full flex flex-col items-center">
               <input
                 type="password"
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2 mb-2 w-full text-gray-800"
+                className="border border-gray-300 rounded px-3 py-2 mb-2 w-full text-white"
                 autoFocus
               />
               {error && <div className="text-red-600 mb-2">{error}</div>}
@@ -139,7 +139,7 @@ function Sidebar() {
               </button>
               <button
                 type="button"
-                className="mt-2 text-gray-500 underline"
+                className="mt-2 text-white "
                 onClick={() => setShowModal(false)}
               >
                 Cancelar

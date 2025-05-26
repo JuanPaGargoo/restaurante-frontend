@@ -21,7 +21,7 @@ function DishEditCard({ dish, apiBaseUrl }) {
           {dish.nombre}
         </h3>
         <p className="text-md text-gray-400 text-center truncate">
-          ${dish.precio?.toFixed(2) ?? "0.00"}
+          ${dish.precio && !isNaN(dish.precio) ? Number(dish.precio).toFixed(2) : "N/A"}
         </p>
         <button className="mt-2 w-full bg-red-900/80 hover:bg-red-700 text-red-200 font-semibold py-2 rounded-lg transition">
           Edit dish

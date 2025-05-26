@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import DishEditCard from "./DishEditCard";
 import { useUserType } from "../context/UserTypeContext"; // Importa el contexto
+import CategoryModal from "./CategoryModal";
+import AddDishModal from "./AddDishModal"; // Asegúrate de importar el componente
+import EditDishModal from "./EditDishModal"; // Importa la nueva modal
 
 function SettingsContent() {
     const { userType, setUserType, numeroMesa, setNumeroMesa } = useUserType(); // Usa el contexto
@@ -10,6 +13,10 @@ function SettingsContent() {
     const [dishes, setDishes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [showAddDishModal, setShowAddDishModal] = useState(false); // Estado para controlar la modal de agregar platillo
+    const [selectedDish, setSelectedDish] = useState(null);
+    const [showEditDishModal, setShowEditDishModal] = useState(false);
 
     // Estado local para el tipo de dispositivo (sincronizado con el contexto)
     const [tipoDispositivo, setTipoDispositivo] = useState(userType || "personal");
@@ -80,6 +87,63 @@ function SettingsContent() {
         }
     };
 
+    // Guardar categorías (puedes hacer un fetch aquí para actualizar en el backend)
+    const handleSaveCategories = (newCategories) => {
+        setCategories(newCategories);
+        // Aquí puedes hacer un fetch para guardar en el backend si lo deseas
+    };
+
+    const handleSave = async () => {
+        if (!nombre.trim() || !precio || !categoryId || !imagen) {
+            alert("Por favor, completa todos los campos obligatorios.");
+            return;
+        }
+
+        setLoading(true);
+
+        // Crear un objeto FormData para enviar los datos
+        const formData = new FormData();
+        formData.append("nombre", nombre);
+        formData.append("precio", parseFloat(precio));
+        formData.append("descripcion", descripcion);
+        formData.append("categoriaId", categoryId);
+        formData.append("imagen", imagen);
+
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                body: formData, // Enviar el FormData
+            });
+
+            if (!res.ok) {
+                throw new Error("Error al guardar el platillo");
+            }
+
+            const nuevo = await res.json();
+            onDishCreated(nuevo);
+            setNombre("");
+            setPrecio("");
+            setDescripcion("");
+            setImagen(null);
+            onClose();
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al guardar el platillo.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDishUpdated = (updatedDish) => {
+        setDishes((prevDishes) =>
+            prevDishes.map((dish) => (dish.id === updatedDish.id ? updatedDish : dish))
+        );
+    };
+
+    const handleDishDeleted = (deletedDishId) => {
+        setDishes((prevDishes) => prevDishes.filter((dish) => dish.id !== deletedDishId));
+    };
+
     return (
         <div className="flex h-full text-white rounded-xl justify-center pt-5 pb-5 pl-6">
             {/* Sidebar */}
@@ -91,8 +155,8 @@ function SettingsContent() {
                         <button
                             className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition ${
                                 selectedMenu === "Products Management"
-                                    ? "bg-[#2d2e36] text-red-500"
-                                    : "text-gray-300 hover:bg-[#2d2e36]"
+                                    ? "bg-grisAcero text-red-500"
+                                    : "text-gray-300 hover:bg-grisAcero"
                             }`}
                             onClick={() => setSelectedMenu("Products Management")}
                         >
@@ -105,8 +169,8 @@ function SettingsContent() {
                     <button
                         className={`w-full text-left px-4 py-3 rounded-lg transition ${
                             selectedMenu === "Device"
-                                ? "bg-[#2d2e36] text-red-500"
-                                : "text-gray-300 hover:bg-[#2d2e36]"
+                                ? "bg-grisAcero text-red-500"
+                                : "text-gray-300 hover:bg-grisAcero"
                         }`}
                         onClick={() => setSelectedMenu("Device")}
                     >
@@ -125,7 +189,10 @@ function SettingsContent() {
                         {/* Header */}
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold">Gestión de productos</h3>
-                            <button className="border border-gray-500 rounded-lg px-4 py-2 text-gray-200 hover:bg-gray-700 transition">
+                            <button
+                                className="border border-gray-500 rounded-lg px-4 py-2 text-gray-200 hover:bg-gray-700 transition"
+                                onClick={() => setShowCategoryModal(true)}
+                            >
                                 Gestionar categorías
                             </button>
                         </div>
@@ -146,9 +213,12 @@ function SettingsContent() {
                             ))}
                         </div>
                         {/* Dishes Grid */}
-                        <div className="grid grid-cols-3 gap-6 mb-8 overflow-y-auto max-h-[400px] gap-y-7 scrollbar rounded-lg p-8">
+                        <div className="grid grid-cols-3 gap-6 mb-8 overflow-y-auto h-[400px] gap-y-7 scrollbar rounded-lg p-8">
                             {/* Add new dish card */}
-                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-red-500 rounded-lg h-[250px]cursor-pointer hover:bg-[#282830] transition">
+                            <div
+                                className="flex flex-col items-center justify-center border-2 border-dashed border-red-500 rounded-lg h-[250px] cursor-pointer hover:bg-[#282830] transition col-span-1 w-full max-w-xs"
+                                onClick={() => setShowAddDishModal(true)} // Abre la modal
+                            >
                                 <span className="text-4xl text-red-500 mb-2">+</span>
                                 <span className="text-red-500 font-semibold">
                                     Agregar nuevo platillo
@@ -161,18 +231,45 @@ function SettingsContent() {
                                 </p>
                             ) : dishes.length > 0 ? (
                                 dishes.map((dish) => (
-                                    <DishEditCard
+                                    <div
                                         key={dish.id}
-                                        dish={dish}
-                                        apiBaseUrl={API_BASE_URL}
-                                    />
+                                        className="card cursor-pointer"
+                                        onClick={() => {
+                                            setSelectedDish(dish);
+                                            setShowEditDishModal(true);
+                                        }}
+                                    >
+                                        <DishEditCard
+                                            dish={dish}
+                                            apiBaseUrl={API_BASE_URL}
+                                        />
+                                    </div>
                                 ))
                             ) : (
                                 <p className="text-gray-400 col-span-3 text-center">
-                                    No hay platillos disponibles en esta categoría.
+                                    No hay platillos en esta categoría.
                                 </p>
                             )}
                         </div>
+                        <CategoryModal
+                            isOpen={showCategoryModal}
+                            onClose={() => setShowCategoryModal(false)}
+                            categories={categories}
+                            onSave={handleSaveCategories}
+                        />
+                        <AddDishModal
+                            isOpen={showAddDishModal}
+                            onClose={() => setShowAddDishModal(false)}
+                            categoryId={selectedCategory} // Aquí se pasa el ID de la categoría seleccionada
+                            onDishCreated={(nuevoPlatillo) => setDishes([...dishes, nuevoPlatillo])}
+                        />
+                        <EditDishModal
+                            isOpen={showEditDishModal}
+                            onClose={() => setShowEditDishModal(false)}
+                            dish={selectedDish}
+                            onDishUpdated={handleDishUpdated}
+                            onDishDeleted={handleDishDeleted}
+                        />
                     </div>
                 )}
                 {selectedMenu === "Device" && (
@@ -183,7 +280,7 @@ function SettingsContent() {
                                 Tipo de dispositivo
                             </label>
                             <select
-                                className="w-full p-2 rounded bg-[#23232b] text-white border border-gray-600"
+                                className="w-full p-2 rounded bg-grisAcero text-white border border-gray-600"
                                 value={tipoDispositivo}
                                 onChange={(e) => {
                                     setTipoDispositivo(e.target.value);
@@ -205,7 +302,7 @@ function SettingsContent() {
                                 </label>
                                 <input
                                     type="number"
-                                    className="w-full p-2 rounded bg-[#23232b] text-white border border-gray-600"
+                                    className="w-full p-2 rounded bg-grisAcero text-white border border-gray-600"
                                     value={mesaLocal}
                                     onChange={(e) => setMesaLocal(e.target.value)}
                                     min="1"
