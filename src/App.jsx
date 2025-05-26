@@ -45,6 +45,10 @@ function App() {
     );
   };
 
+  const handleClearOrder = () => {
+    setOrderItems([]); // Limpia la orden actual
+  };
+
   return (
     <BrowserRouter>
       <div className="flex h-screen bg-grisAcero text-white">
@@ -58,6 +62,7 @@ function App() {
                 orderItems={orderItems}
                 onRemoveItem={handleRemoveItem}
                 onUpdateQuantity={handleUpdateQuantity}
+                onClearOrder={handleClearOrder}
               />
             }
           />
