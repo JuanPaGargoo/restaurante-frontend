@@ -6,6 +6,7 @@ export const CuentaContext = createContext();
 export const CuentaProvider = ({ children }) => {
   const [confirmedOrders, setConfirmedOrders] = useState([]);
   const [cuentaId, setCuentaId] = useState(null);
+  const [helpAlerts, setHelpAlerts] = useState([]);
   const { numeroMesa } = useUserType();
   const isFirstOrder = useRef(true);
 
@@ -94,7 +95,7 @@ export const CuentaProvider = ({ children }) => {
     isFirstOrder.current = true;
   };
 
-  const confirmarPago = async (monto, metodo) => {
+  const confirmarPago = async (cuentaId, monto, metodo) => {
     if (!cuentaId) return;
     monto = parseFloat(monto);
     try {
@@ -110,33 +111,51 @@ export const CuentaProvider = ({ children }) => {
       });
       if (!resPago.ok) throw new Error("Error al registrar el pago");
 
-
       // 2. Cambiar la mesa a "libre" y pedidos a "finalizado"
-      const resFinalizar = await fetch(`http://localhost:3000/api/cuentas/${cuentaId}/finalizar`, {
+      await fetch(`http://localhost:3000/api/cuentas/${cuentaId}/finalizar`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}) 
+        body: JSON.stringify({}),
       });
-      if (!resFinalizar.ok) throw new Error("Error al finalizar la cuenta");
 
-      if (!resPago.ok) {
-            const errorData = await resPago.json();
-            throw new Error(errorData.error || "Error al registrar el pago");
-        }
-        if (!resFinalizar.ok) {
-            const errorData = await resFinalizar.json();
-            throw new Error(errorData.error || "Error al finalizar la cuenta");
-        }
-      // 3. Limpiar el contexto
-      clearConfirmedOrders();
+      // 3. Limpiar el contexto solo si es la cuenta activa
+      if (setCuentaId && cuentaId === cuentaId) clearConfirmedOrders();
     } catch (err) {
       console.error("Error al confirmar el pago:", err);
     }
   };
 
+  // Función para agregar una alerta de ayuda
+  const solicitarAyuda = (mesaId) => {
+    alert(`La ayuda ha sido solicitada`);
+    setHelpAlerts((prev) => [
+      ...prev,
+      {
+        id: Date.now(), // id único
+        mesaId,
+        message: "¡Mesa necesita ayuda!",
+        detail: `¡Mesa ${mesaId} necesita ayuda!`,
+      },
+    ]);
+  };
+
+  // Función para limpiar una alerta (opcional)
+  const limpiarAlerta = (alertId) => {
+    setHelpAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
+  };
+
   return (
     <CuentaContext.Provider
-      value={{ confirmedOrders, cuentaId, addConfirmedOrder, clearConfirmedOrders, confirmarPago }}
+      value={{
+        confirmedOrders,
+        cuentaId,
+        addConfirmedOrder,
+        clearConfirmedOrders,
+        confirmarPago,
+        helpAlerts,
+        solicitarAyuda,
+        limpiarAlerta,
+      }}
     >
       {children}
     </CuentaContext.Provider>

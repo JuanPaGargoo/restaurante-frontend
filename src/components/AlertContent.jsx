@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
-
-const alerts = [
-  { id: 1, message: "Nuevo Mensaje", detail: "¡Mesa 1 necesita ayuda!" },
-  { id: 2, message: "Nuevo Mensaje", detail: "¡Mesa 5 necesita ayuda!" },
-  { id: 3, message: "Nuevo Mensaje", detail: "¡Mesa 3 necesita ayuda!" },
-];
+import { useCuenta } from "../context/CuentaContext";
 
 function AlertContent() {
+  const { helpAlerts, limpiarAlerta, confirmarPago } = useCuenta();
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("all");
   const [now, setNow] = useState(new Date());
@@ -102,7 +98,15 @@ function AlertContent() {
                     </td>
                     <td className="py-2 px-2">${order.total.toFixed(2)}</td>
                     <td className="py-2 px-2">
-                      <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-lg font-semibold shadow-md transition">
+                      <button
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-lg font-semibold shadow-md transition"
+                        onClick={async () => {
+                          await confirmarPago(order.id, order.total, "cash");
+                          alert("Pago confirmado");
+                          // Opcional: recarga las órdenes
+                          setOrders(orders => orders.filter(o => o.id !== order.id));
+                        }}
+                      >
                         Confirmar pago
                       </button>
                     </td>
@@ -118,30 +122,40 @@ function AlertContent() {
         <h2 className="text-lg font-bold text-white mb-2">Alertas</h2>
         <hr className="border-gray-700 mb-4" />
         <div className="flex flex-col gap-4">
-          {alerts.map(alert => (
-            <div
-              key={alert.id}
-              className="flex items-start gap-4 bg-grisAcero rounded-lg p-4 shadow-md"
-            >
-              <svg
-                className="w-7 h-7 text-gray-300 mt-1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
+          {helpAlerts.length === 0 ? (
+            <div className="text-gray-400">No hay alertas de ayuda.</div>
+          ) : (
+            helpAlerts.map(alert => (
+              <div
+                key={alert.id}
+                className="flex items-start gap-4 bg-grisAcero rounded-lg p-4 shadow-md"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.73 21a2 2 0 01-3.46 0M12 19v-1m-6-5V9a6 6 0 1112 0v4a2 2 0 002 2h-1a2 2 0 01-2 2H7a2 2 0 01-2-2H4a2 2 0 002-2z"
-                />
-              </svg>
-              <div>
-                <div className="text-white font-medium">{alert.message}</div>
-                <div className="text-gray-400">{alert.detail}</div>
+                <svg
+                  className="w-7 h-7 text-gray-300 mt-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.73 21a2 2 0 01-3.46 0M12 19v-1m-6-5V9a6 6 0 1112 0v4a2 2 0 002 2h-1a2 2 0 01-2 2H7a2 2 0 01-2-2H4a2 2 0 002-2z"
+                  />
+                </svg>
+                <div>
+                  <div className="text-white font-medium">{alert.message}</div>
+                  <div className="text-gray-400">{alert.detail}</div>
+                  <button
+                    className="mt-2 text-xs text-rojoBrillante underline"
+                    onClick={() => limpiarAlerta(alert.id)}
+                  >
+                    Quitar alerta
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

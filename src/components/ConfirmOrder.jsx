@@ -1,4 +1,5 @@
 import { useCuenta } from "../context/CuentaContext";
+import { useUserType } from "../context/UserTypeContext";
 
 function agrupaPlatillos(platillos) {
   const agrupados = {};
@@ -13,7 +14,8 @@ function agrupaPlatillos(platillos) {
 }
 
 function ConfirmOrder({ orderItems, onBack, onPay, hidePayButton }) {
-  const { confirmedOrders } = useCuenta();
+  const { confirmedOrders, solicitarAyuda } = useCuenta();
+  const { numeroMesa } = useUserType();
   const apiBaseUrl = "http://localhost:3000";
 
   // Aplana y agrupa todos los platillos de todos los pedidos confirmados
@@ -28,7 +30,10 @@ function ConfirmOrder({ orderItems, onBack, onPay, hidePayButton }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-bold text-white">Confirmación de Orden</h2>
         {!hidePayButton && (
-          <button className="bg-rojoBrillante text-white px-6 py-2 rounded font-semibold hover:bg-red-700 transition-colors text-sm">
+          <button
+            className="bg-rojoBrillante text-white px-6 py-2 rounded font-semibold hover:bg-red-700 transition-colors text-sm"
+            onClick={() => solicitarAyuda(numeroMesa)}
+          >
             Necesito Ayuda
           </button>
         )}

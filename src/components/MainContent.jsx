@@ -8,7 +8,7 @@ import PayOrder from './PayOrder';
 function MainContent({ onAddToOrder, orderItems, onRemoveItem, onUpdateQuantity,onClearOrder }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPay, setShowPay] = useState(false);
-  const { addConfirmedOrder, confirmedOrders, clearConfirmedOrders, confirmarPago } = useCuenta();
+  const { addConfirmedOrder, confirmedOrders, clearConfirmedOrders, confirmarPago, cuentaId } = useCuenta();
 
   const handleConfirmOrder = () => {
     addConfirmedOrder(orderItems); 
@@ -47,7 +47,7 @@ function MainContent({ onAddToOrder, orderItems, onRemoveItem, onUpdateQuantity,
               .flat()
               .reduce((acc, item) => acc + item.precio * item.quantity, 0);
 
-            confirmarPago(Number(total), method); // <-- Asegura que sea double
+            confirmarPago(cuentaId, Number(total), method); // <-- Asegura que sea double
             alert(`Pago confirmado con: ${method === "card" ? "Tarjeta" : "Efectivo"}`);
             clearConfirmedOrders();
             setShowPay(false);
