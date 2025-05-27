@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
 
-const orders = [
-  { id: "12345", time: "03:30pm", table: 2, status: "Entregado", total: 560 },
-  { id: "12346", time: "03:45pm", table: 5, status: "Entregado", total: 400 },
-  { id: "12347", time: "04:22pm", table: 1, status: "Listo", total: 270 },
-  { id: "12348", time: "04:30pm", table: 3, status: "En preparación", total: 490 },
-  { id: "12349", time: "04:47pm", table: 7, status: "En preparación", total: 200 },
-];
-
-// Ejemplo de alertas
 const alerts = [
   { id: 1, message: "Nuevo Mensaje", detail: "¡Mesa 1 necesita ayuda!" },
   { id: 2, message: "Nuevo Mensaje", detail: "¡Mesa 5 necesita ayuda!" },
@@ -16,8 +7,17 @@ const alerts = [
 ];
 
 function AlertContent() {
+  const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("all");
   const [now, setNow] = useState(new Date());
+
+  // Consumir la API al montar el componente
+  useEffect(() => {
+    fetch("http://localhost:3000/api/cuentas/dashboard")
+      .then((res) => res.json())
+      .then((data) => setOrders(data))
+      .catch(() => setOrders([]));
+  }, []);
 
   // Actualiza la fecha y hora cada segundo
   useEffect(() => {
@@ -25,10 +25,10 @@ function AlertContent() {
     return () => clearInterval(interval);
   }, []);
 
-  // Opcional: Filtrado por status
+  // Filtrado por status, que tengan al menos un pedido y mesa asociada
   const filteredOrders = filter === "all"
-    ? orders
-    : orders.filter(order => order.status === filter);
+    ? orders.filter(order => order.status !== "Sin pedidos" && order.table !== null)
+    : orders.filter(order => order.status === filter && order.status !== "Sin pedidos" && order.table !== null);
 
   // Fecha y hora en español
   const fecha = now.toLocaleDateString("es-MX", {
